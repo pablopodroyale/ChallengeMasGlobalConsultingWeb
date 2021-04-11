@@ -8,38 +8,32 @@
     </div>
 </div>
 <div class="container-fluid mt--7">
-
-    <!-- <button class="btn btn-primary btn-lg btn-block" [routerLink]="['/presupuestos/crear-presupuesto']">Crear Pedido</button> -->
     <div class="row mt-5">
-
         <div class="col">
             <div class="card">
                 <div class="card-header">
                     <h3 class="text-black mb-0">Employees</h3>
                 </div>
                 <div class="card-body">
-                    <div class="form-group row">
-                        <form (submit)="filterById()" class="col-8 p2">
-                            <label>
-                              Id
-                              <input type="number" name="id" id="employeeId" class="form-control" [(ngModel)]="employeeId" />
-                            </label>
-                            <button class="btn btn-primary" style="margin-left: 2%;" type="submit">Filter by ID</button>
-                        </form>
-
-                    </div>
-                    <button class="btn btn-primary" style="margin-bottom: 2%;" (click)="clearFilters()">Clear Filters</button>
-
+                    <form (submit)="filterById()" class="col-8 p2">
+                        <label>
+                          Id
+                          <input type="number" name="id" id="employeeId" class="form-control" [(ngModel)]="employeeId" />
+                        </label>
+                        <button class="btn btn-primary" style="margin: 1%;" type="submit">Filter by ID</button>
+                        <button class="btn btn-primary" style="margin: 1%;" type="button" (click)="getAll()">Get All Employees</button>
+                    </form>
+                    <hr>
                     <br />
-                    <table datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" class="table row-border hover">
+                    <table class="table row-border hover">
                         <thead class="thead-dark">
                             <tr>
-                                <th scope="col">Id</th>
-                                <th scope="col">Name</th>
-                                <th scope="col">Role</th>
-                                <th scope="col">HourlySalary</th>
-                                <th scope="col">MonthlySalary</th>
-                                <th scope="col">Calc. Annual Salary</th>
+                                <th>Id</th>
+                                <th>Name</th>
+                                <th>Role</th>
+                                <th>HourlySalary</th>
+                                <th>MonthlySalary</th>
+                                <th>Calc. Annual Salary</th>
                             </tr>
                         </thead>
                         <tbody>

@@ -4,6 +4,10 @@ import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { EmployeeDto } from '../shared/Dto/employee-dto.component';
 import { EmployeesService } from '../shared/services/employees.service';
+import { map } from 'rxjs/operators';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { NgxLoadingComponent } from 'ngx-loading';
+import { AppComponent } from '../app.component';
 
 @Component({
   selector: 'app-employee',
@@ -12,100 +16,84 @@ import { EmployeesService } from '../shared/services/employees.service';
 })
 export class EmployeeComponent implements OnInit {
   public employees: EmployeeDto[] = [];
-  public dtOptions: DataTables.Settings;
-  public dtTrigger: Subject<any> ;
-  @ViewChild(DataTableDirective, {static: false})
-  datatableElement: DataTableDirective;
-  employeeId:number;
+  public dtElement: DataTableDirective;
+  dtOptions: DataTables.Settings = {};
+  dtTrigger: Subject<any> = new Subject();
+  public table: any;
 
-  constructor(public employeesService: EmployeesService, private toast: ToastrService) {
-      this.employees = [];
-      this.dtOptions = {};
-      this.dtTrigger = new Subject<any>();
-   }
+
+  @ViewChild(DataTableDirective, { static: false })
+  datatableElement: DataTableDirective;
+  employeeId: number;
+
+  constructor(public employeesService: EmployeesService, private toast: ToastrService, private http: HttpClient,private appComponent: AppComponent) {
+    this.employees = [];
+    this.table = $('#idEmployeesTable');
+  }
 
   ngOnInit(): void {
-    $.fn['dataTable'].ext.search.push((settings, data, dataIndex) => {
-      const id = parseFloat(data[0]) || 0; // use data for the id column
-      if (isNaN(this.employeeId)){
-        return true;
-      }
-      return false;
-    });
+    this.appComponent.setLoading(true);
 
+    this.employees = [];
     this.dtOptions = {
       pagingType: 'full_numbers',
-      pageLength: 5,
-      processing: true
+      pageLength: 2,
+      search: true,
+      paging: true
     };
-    
     this.getAllEmployees();
+  }
+
+  ngAfterViewInit(): void {
+    this.dtTrigger.next();
+  }
+
+  rerender(): void {
+    this.dtElement.dtInstance
+      .then((dtInstance: DataTables.Api) => {
+        dtInstance.destroy();
+        this.dtTrigger.next();
+      });
   }
 
   async getAllEmployees() {
-    await this.employeesService.getAllEmployees().toPromise()
-      .then((res: any) => {
-        if (res.succedded) {
-          res.obj.forEach(element => {
-            let employee: EmployeeDto = new EmployeeDto(element);
-            this.employees.push(employee);
-          });
-          this.dtTrigger.next();
-        } else {
-          let errors = res.errors.map(x => x.description)
-          this.toast.error(errors.join(', \n'));
-          console.log(res.errors)
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-        this.toast.error("Connection Error");
-      });
-    ;
-  }
-
-  async GetEmployeeById(id: number) {
-    await this.employeesService.GetEmployeeById(id).toPromise()
-      .then((res: any) => {
-        if (res.succedded) {
-        
-          let employee: EmployeeDto = new EmployeeDto(res.obj);
-          this.employees.push(employee);
-        
-          this.dtTrigger.next();
-        } else {
-          let errors = res.errors.map(x => x.description)
-          this.toast.error(errors.join(', \n'));
-          console.log(res.errors)
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-        this.toast.error("Connection Error");
-      });
-    ;
+    this.appComponent.setLoading(true);
+    this.employeesService.getAllEmployees()
+      .subscribe(
+        data => {
+          this.employees = data.obj
+        },
+        error => {
+          this.toast.error("Connection Error");
+        });
+    this.appComponent.setLoading(false);
   }
 
   filterById(): void {
-    this.GetEmployeeById(this.employeeId);
-    this.datatableElement.dtInstance.then((dtInstance: DataTables.Api) => {
-    
-      dtInstance.draw();
-    });
+    if (this.employeeId != undefined) {
+      this.appComponent.setLoading(true);
+      this.employeesService.GetEmployeeById(this.employeeId)
+        .subscribe(
+          data => {
+            this.employees = []
+            if (data.obj != null) {
+              this.employees.push(data.obj)
+            }
+          },
+          error => {
+            this.toast.error("Connection Error");
+          });
+    } else {
+      this.toast.error("Select an Employee Id");
+    }
+    this.appComponent.setLoading(false);
   }
 
-  clearFilters(): void {
+  getAll(): void {
     this.getAllEmployees();
-    this.datatableElement.dtInstance.then((dtInstance: DataTables.Api) => {
-    
-      dtInstance.draw();
-    });
   }
 
   ngOnDestroy(): void {
-    // We remove the last function in the global ext search array so we do not add the fn each time the component is drawn
-    // /!\ This is not the ideal solution as other components may add other search function in this array, so be careful when
-    // handling this global variable
     $.fn['dataTable'].ext.search.pop();
   }
 }

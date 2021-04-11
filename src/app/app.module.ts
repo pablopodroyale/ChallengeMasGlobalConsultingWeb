@@ -9,7 +9,7 @@ import { DataTablesModule } from 'angular-datatables';
 import { RouterModule } from '@angular/router';
 import { ToastrModule } from 'ngx-toastr';
 import { FormsModule } from '@angular/forms';
-
+import { NgxLoadingModule } from 'ngx-loading';
 
 @NgModule({
   declarations: [
@@ -21,6 +21,7 @@ import { FormsModule } from '@angular/forms';
     HttpClientModule,
     DataTablesModule.forRoot(),
     RouterModule.forRoot([
+      { path: '', redirectTo: '/employees', pathMatch: 'full' },
       {path: 'employees', component: EmployeeComponent},
     ]),
     ToastrModule.forRoot(),
@@ -28,6 +29,7 @@ import { FormsModule } from '@angular/forms';
     [BrowserModule],
     BrowserAnimationsModule, // required animations module
     ToastrModule.forRoot(), // ToastrModule added
+    NgxLoadingModule.forRoot({})
   ],
 
   providers: [],
