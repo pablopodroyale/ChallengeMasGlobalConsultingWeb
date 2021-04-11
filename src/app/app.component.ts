@@ -15,7 +15,7 @@ export class AppComponent {
    *
    */
   constructor() {
-    this.loading = false;
+    this.loading = true;
   }
 
   public getName(): boolean {

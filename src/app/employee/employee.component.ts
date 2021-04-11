@@ -6,7 +6,6 @@ import { EmployeeDto } from '../shared/Dto/employee-dto.component';
 import { EmployeesService } from '../shared/services/employees.service';
 import { map } from 'rxjs/operators';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { NgxLoadingComponent } from 'ngx-loading';
 import { AppComponent } from '../app.component';
 
 @Component({
@@ -33,7 +32,6 @@ export class EmployeeComponent implements OnInit {
 
   ngOnInit(): void {
     this.appComponent.setLoading(true);
-
     this.employees = [];
     this.dtOptions = {
       pagingType: 'full_numbers',
