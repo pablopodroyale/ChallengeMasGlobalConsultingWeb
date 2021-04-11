@@ -3,7 +3,9 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  GetAllEmployees :`https://localhost:5001/api/Employee/GetAllEmployees`,
+  GetEmployeeById : `https://localhost:5001/api/Employee/GetEmployeeById`
 };
 
 /*
