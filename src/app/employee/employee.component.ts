@@ -7,19 +7,22 @@ import { EmployeesService } from '../shared/services/employees.service';
 import { map } from 'rxjs/operators';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AppComponent } from '../app.component';
+import { SearchDto } from '../shared/Dto/search-dto.component';
+import { FilterEmployeeDto } from '../shared/Dto/filter-employee-dto.component';
 
 @Component({
   selector: 'app-employee',
-  templateUrl: './employee.component.html',
+  templateUrl:'./employee.component.html',
   styleUrls: ['./employee.component.css']
 })
 export class EmployeeComponent implements OnInit {
   public employees: EmployeeDto[] = [];
   public dtElement: DataTableDirective;
-  dtOptions: DataTables.Settings = {};
-  dtTrigger: Subject<any> = new Subject();
+  public dtOptions: DataTables.Settings = {};
+  public dtTrigger: Subject<any> = new Subject();
   public table: any;
-
+  public search:SearchDto;
+  public filter:FilterEmployeeDto;
 
   @ViewChild(DataTableDirective, { static: false })
   datatableElement: DataTableDirective;
@@ -28,6 +31,9 @@ export class EmployeeComponent implements OnInit {
   constructor(public employeesService: EmployeesService, private toast: ToastrService, private http: HttpClient,private appComponent: AppComponent) {
     this.employees = [];
     this.table = $('#idEmployeesTable');
+    this.search = new SearchDto();
+    // this.filter = new FilterEmployeeDto();
+    // this.search.Filter = this.filter;
   }
 
   ngOnInit(): void {
@@ -39,7 +45,7 @@ export class EmployeeComponent implements OnInit {
       search: true,
       paging: true
     };
-    this.getAllEmployees();
+    this.getAllEmployees(this.search);
   }
 
   ngAfterViewInit(): void {
@@ -54,12 +60,12 @@ export class EmployeeComponent implements OnInit {
       });
   }
 
-  async getAllEmployees() {
+  async getAllEmployees(search:SearchDto) {
     this.appComponent.setLoading(true);
-    this.employeesService.getAllEmployees()
+    this.employeesService.getAllEmployees(search)
       .subscribe(
         data => {
-          this.employees = data.obj
+          this.employees = data.obj != null ? data.obj : []
         },
         error => {
           this.toast.error("Connection Error");
@@ -67,15 +73,16 @@ export class EmployeeComponent implements OnInit {
     this.appComponent.setLoading(false);
   }
 
-  filterById(): void {
+  filterEmployees(): void {
     if (this.employeeId != undefined) {
       this.appComponent.setLoading(true);
-      this.employeesService.GetEmployeeById(this.employeeId)
+      this.search.Id = this.employeeId;
+      this.employeesService.getAllEmployees(this.search)
         .subscribe(
           data => {
             this.employees = []
             if (data.obj != null) {
-              this.employees.push(data.obj)
+              this.employees = data.obj
             }
           },
           error => {
@@ -88,7 +95,8 @@ export class EmployeeComponent implements OnInit {
   }
 
   getAll(): void {
-    this.getAllEmployees();
+    this.search.Id = null;
+    this.getAllEmployees(this.search);
   }
 
   ngOnDestroy(): void {

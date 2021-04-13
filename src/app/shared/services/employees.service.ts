@@ -4,6 +4,8 @@ import { environment } from 'src/environments/environment';
 import { Observable } from 'rxjs';
 import { EmployeeDto } from '../Dto/employee-dto.component';
 import { ServiceResultDto } from '../Dto/service-result.component';
+import { SearchDto } from '../Dto/search-dto.component';
+import { JsonPipe } from '@angular/common';
 
 @Injectable({
   providedIn: 'root'
@@ -12,10 +14,10 @@ export class EmployeesService {
 
   constructor(private _http: HttpClient) { }
 
-  getAllEmployees():Observable<ServiceResultDto> {
+  getAllEmployees(search:SearchDto):Observable<ServiceResultDto> {
     let url = `${environment.GetAllEmployees}`;
-    const headers = new HttpHeaders({ 'Content-Type': 'application/json; charset=utf-8' });
-    return this._http.get<ServiceResultDto>(url, { headers });
+    const headers = new HttpHeaders({'Content-Type':'application/json; charset=utf-8'});
+    return this._http.post<ServiceResultDto>(url, search, {headers : headers});
   }
 
   GetEmployeeById(id: number) :Observable<ServiceResultDto> {
